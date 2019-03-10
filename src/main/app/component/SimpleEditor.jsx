@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import BraftEditor from 'braft-editor'
 import 'braft-editor/dist/index.css'
 
+/**
+ * 自定义控件的富文本编辑器
+ * @author yoking-wi
+ * @version 2019年3月10日 20:37:23
+ */
 class SimpleEditor extends Component {
     constructor(props) {
         super(props);

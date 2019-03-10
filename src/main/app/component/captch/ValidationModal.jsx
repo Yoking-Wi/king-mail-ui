@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
-import { Card, Spin ,Modal} from 'antd';
+import { Card, Spin, Modal } from 'antd';
 import JigsawCaptcha from './JigsawCaptcha';
 //批量引用本地图片
 const requireContext = require.context("../../../resource/img/captcha/img", true, /^\.\/.*\.png$/);
 const images = requireContext.keys().map(requireContext);
 
+/**
+ * 验证码窗口
+ * @author yoking-wi
+ * @version 2019年3月10日 20:39:05
+ */
 class ValidationModal extends Component {
     constructor(props) {
         super(props);
@@ -42,6 +47,8 @@ class ValidationModal extends Component {
     onMatch() {
         this.props.sendWithSchedule();
         this.props.hideValidationModal();
+        //调用子组件方法
+        this.refs.captcha.onReload();
     }
 
     /**
@@ -53,20 +60,21 @@ class ValidationModal extends Component {
 
     render() {
         return (
-            <Modal visible={this.props.modalIsVisible} centered footer={null} destroyOnClose width="300px" onCancel={()=>this.props.hideValidationModal()}>
-            <Spin spinning={this.state.loading} tip="loading">
-                <Card>
-                    <JigsawCaptcha
-                        imageWidth={200}
-                        imageHeight={150}
-                        fragmentSize={40}
-                        imageUrl={this.state.imageUrl}
-                        onReload={() => this.onReload()}
-                        onMatch={() => this.onMatch()}
-                        onError={() => this.onError()}
-                    />
-                </Card>
-            </Spin>
+            <Modal visible={this.props.modalIsVisible} centered footer={null} width="300px" onCancel={() => this.props.hideValidationModal()}>
+                <Spin spinning={this.state.loading} tip="loading">
+                    <Card>
+                        <JigsawCaptcha
+                            ref="captcha"
+                            imageWidth={200}
+                            imageHeight={150}
+                            fragmentSize={40}
+                            imageUrl={this.state.imageUrl}
+                            onReload={() => this.onReload()}
+                            onMatch={() => this.onMatch()}
+                            onError={() => this.onError()}
+                        />
+                    </Card>
+                </Spin>
             </Modal>
         );
     }

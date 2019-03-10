@@ -2,11 +2,16 @@ import React, { Component } from 'react';
 import { Tabs, Input, Row, Col, Card, Button, DatePicker, message, Tooltip } from 'antd'
 import SimpleEditor from '../component/SimpleEditor';
 import ValidationModal from '../component/captch/ValidationModal';
-import Config from '../config/config';
+import Counter from '../component/Counter';
+import Config from '../config/global-config';
 import BackgroundImage from '../../resource/img/15.jpg'
 import 'antd/dist/antd.css'
 const TabPane = Tabs.TabPane;
-
+/**
+ * 主界面
+ * @author yoking-wi
+ * @version 2019年3月10日 20:42:53
+ */
 class Main extends Component {
     constructor(props) {
         super(props);
@@ -93,8 +98,8 @@ class Main extends Component {
                 type: 'html'
             })
         }).then(response => response.json())
-            .then(data => {
-                if (data.code === '200') {
+            .then(result => {
+                if (result.code === '200') {
                     message.success("鸿雁将在 " + this.state.emailSendTime + " 传送书信");
                 } else {
                     message.error("鸿雁很心累 表示书信无法传送")
@@ -129,13 +134,15 @@ class Main extends Component {
     }
 
     render() {
+        // const num = 200;
+        // const counter = (<Counter/>);
         return (
             <div style={{ backgroundImage: `url(${BackgroundImage})`, backgroundSize: '1600px 768px', height: '100%' }}>
                 <Row style={{ height: '100%' }}>
                     <Col lg={5} xs={2} />
                     <Col lg={14} xs={20} style={{ marginTop: '6%' }}>
                         <Card>
-                            <Tabs defaultActiveKey="1">
+                            <Tabs defaultActiveKey="1" tabBarExtraContent={<Counter />}>
                                 <TabPane tab="书信" key="1" >
                                     <Col span={this.state.inputIsVisible ? 0 : 24}>
                                         <Tooltip title="印下汝之信箱 恭候吾等召唤">
