@@ -12,8 +12,12 @@
  * @param {Function} onMatch 匹配成功时执行的函数
  * @param {Function} onError 匹配失败时执行的函数
  *
- * @modifier yoking-wi
- * @date 2019年3月8日 21:25:13
+ * @summary https://segmentfault.com/a/1190000018309458
+ *
+ * @author yoking-wi
+ * @version 2019年3月8日 21:25:13
+ * @description 1.修改部分代码 2.适配移动端滑动
+ * @bug 刷新图片时 若新图与旧图相同 会出现无法滑动问题 在onReload方法中给出修复方法 但不完美 也可以通过卸载再装载此组建 解决该问题
  */
 
 import React from "react"
@@ -30,7 +34,7 @@ const STATUS_READY = 1 // 图片渲染完成,可以开始滑动
 const STATUS_MATCH = 2 // 图片位置匹配成功
 const STATUS_ERROR = 3 // 图片位置匹配失败
 
-const arrTips = [{ ico: icoSuccess, text: "匹配成功" }, { ico: icoError, text: "匹配失败" }]
+const arrTips = [{ ico: icoSuccess, text: "匹配成功" }, { ico: icoError, text: "失败" }]
 
 // 生成裁剪路径
 function createClipPath(ctx, size = 100, styleIndex = 0) {
@@ -85,9 +89,9 @@ class JigsawCaptcha extends React.Component {
         imageWidth: 500,
         imageHeight: 300,
         fragmentSize: 80,
-        onReload: () => {},
-        onMatch: () => {},
-        onError: () => {}
+        onReload: () => { },
+        onMatch: () => { },
+        onError: () => { }
     }
 
     state = {
@@ -102,18 +106,32 @@ class JigsawCaptcha extends React.Component {
         tipsIndex: 0
     }
 
-    componentDidMount(){
-        //组件装载完后 渲染
+    /**
+     * @author yoking-wi
+     * @version 2019年3月9日 16:53:51
+     * @description 解决初次加载 无法滑动问题 以及 移动端滑动问题
+     */
+    componentDidMount() {
+        // 为slider添加监听 阻止移动端浏览器的默认滚动事件
+        document.getElementById('slider').addEventListener("touchmove", (e) => {
+            // 执行滚动回调
+            this.onTouchMove(e)
+        }, {
+                passive: false //  禁止 passive 效果
+            });
+
+        //初次装载 渲染图片
         this.renderImage();
     }
 
     componentDidUpdate(prevProps) {
         // 当父组件传入新的图片后，开始渲染
-        if (!!this.props.imageUrl && prevProps.imageUrl !== this.props.imageUrl) {
-            this.renderImage()
+        if (this.props.imageUrl && prevProps.imageUrl !== this.props.imageUrl) {
+            this.renderImage();
         }
     }
 
+    //渲染图片
     renderImage = () => {
         // 初始化状态
         this.setState({ status: STATUS_LOADING })
@@ -122,6 +140,7 @@ class JigsawCaptcha extends React.Component {
         const objImage = new Image()
 
         objImage.addEventListener("load", () => {
+            // objImage.onload = () => {
             const { imageWidth, imageHeight, fragmentSize } = this.props
 
             // 先获取两个ctx
@@ -154,8 +173,8 @@ class JigsawCaptcha extends React.Component {
             // 修改状态
             this.setState({ status: STATUS_READY })
         })
-
-        objImage.src = this.props.imageUrl
+        // }
+        objImage.src = this.props.imageUrl;
     }
 
     onMoveStart = e => {
@@ -212,6 +231,7 @@ class JigsawCaptcha extends React.Component {
         if (this.state.status !== STATUS_READY && this.state.status !== STATUS_MATCH) {
             return
         }
+
         const ctxShadow = this.refs.shadowCanvas.getContext("2d")
         const ctxFragment = this.refs.fragmentCanvas.getContext("2d")
 
@@ -228,9 +248,14 @@ class JigsawCaptcha extends React.Component {
                 oldX: 0,
                 currX: 0, // 滑块当前 x,
                 status: STATUS_LOADING
-            },
-            this.props.onReload
+            },()=>{
+                this.onReset()
+                this.props.onReload()
+            }
         )
+
+        // // 解决onReload后 新图与旧图相同时 而不能滑动问题
+        // this.renderImage();
     }
 
     onShowTips = () => {
@@ -243,7 +268,68 @@ class JigsawCaptcha extends React.Component {
         const timer = setTimeout(() => {
             this.setState({ showTips: false })
             clearTimeout(timer)
-        }, 2000)
+        }, 1000)
+    }
+
+    /**
+     * @author yoking-wi
+     * @version 2019年3月9日 12:19:03
+     * @description 移动端触屏滑动开始事件
+     */
+    onTouchStart = e => {
+        if (this.state.status !== STATUS_READY) {
+            return
+        }
+
+        // 记录滑动开始时的绝对坐标x
+        this.setState({ isMovable: true, startX: e.touches[0].clientX })
+    }
+
+    /**
+     * @author yoking-wi
+     * @version 2019年3月9日 12:19:03
+     * @description 移动端触屏滑动事件
+     */
+    onTouchMove = e => {
+        //禁止移动端浏览器默认事件
+        e.preventDefault();
+
+        if (this.state.status !== STATUS_READY || !this.state.isMovable) {
+            return
+        }
+        const distance = e.touches[0].clientX - this.state.startX
+        let currX = this.state.oldX + distance
+
+        const minX = 0
+        const maxX = this.props.imageWidth - this.props.fragmentSize
+        currX = currX < minX ? 0 : currX > maxX ? maxX : currX
+
+        this.setState({ currX })
+    }
+
+    /**
+     * @author yoking-wi
+     * @version 2019年3月9日 16:56:18
+     * @description 移动端触屏滑动结束事件；与 onMoveEnd方法 代码一样 为了区分移动端 故复制一份
+     */
+    onTouchEnd = () => {
+        if (this.state.status !== STATUS_READY || !this.state.isMovable) {
+            return
+        }
+        // 将旧的固定坐标x更新
+        this.setState(pre => ({ isMovable: false, oldX: pre.currX }))
+
+        const isMatch = Math.abs(this.state.currX - this.state.offsetX) < 5
+        if (isMatch) {
+            this.setState(pre => ({ status: STATUS_MATCH, currX: pre.offsetX }), this.onShowTips)
+            this.props.onMatch()
+        } else {
+            this.setState({ status: STATUS_ERROR }, () => {
+                this.onReset()
+                this.onShowTips()
+            })
+            this.props.onError()
+        }
     }
 
     render() {
@@ -282,12 +368,14 @@ class JigsawCaptcha extends React.Component {
                     </div>
                 </div>
 
-                <div className="slider-wrpper" onMouseMove={this.onMoving} onMouseLeave={this.onMoveEnd}>
-                    <div className="slider-bar">按住滑块，拖动完成拼图</div>
+                <div id="slider" className="slider-wrpper" onMouseMove={this.onMoving} onMouseLeave={this.onMoveEnd} onTouchMove={this.onTouchMove} onTouchEnd={this.onTouchEnd}>
+                    <div className="slider-bar">拖动拼图完成验证</div>
                     <div
                         className="slider-button"
                         onMouseDown={this.onMoveStart}
                         onMouseUp={this.onMoveEnd}
+                        onTouchStart={this.onTouchStart}
+                        onTouchEnd={this.onTouchEnd}
                         style={{ left: currX + "px", backgroundImage: `url("${icoSlider}")` }}
                     />
                 </div>

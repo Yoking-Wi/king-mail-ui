@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Tabs, Input, Row, Col, Card, Button, DatePicker, message, Tooltip } from 'antd'
 import SimpleEditor from '../component/SimpleEditor';
 import ValidationModal from '../component/captch/ValidationModal';
+import Config from '../config/config';
 import BackgroundImage from '../../resource/img/15.jpg'
 import 'antd/dist/antd.css'
 const TabPane = Tabs.TabPane;
-// const TextArea = Input.TextArea;
 
 class Main extends Component {
     constructor(props) {
@@ -16,7 +16,7 @@ class Main extends Component {
             emailSubject: '',  //邮件主题
             emailContent: '',  //邮件内容
             emailSendTime: undefined, //邮件定时发送的时间
-            modalIsVisible: false // 滑动拼图验证码窗口 是否可见
+            modalIsVisible: false // 滑动拼图验证码的窗口 是否可见
         };
     }
 
@@ -32,9 +32,6 @@ class Main extends Component {
             case 'subject':
                 this.setState({ emailSubject: value });
                 break;
-            // case 'content':
-            //     this.setState({ emailContent: value });
-            //     break;
             default:
                 break;
         }
@@ -81,7 +78,8 @@ class Main extends Component {
         }
 
         let headers = new Headers();
-        let url = "http://127.0.0.1:8080/api/email/schedule";
+        // let url = "http://127.0.0.1:8080/api/email/schedule";
+        let url = `${Config.URL}/api/email/schedule`;
         headers.append("Content-Type", "application/json;charset=utf-8");
         fetch(url, {
             method: 'post',
@@ -97,11 +95,12 @@ class Main extends Component {
         }).then(response => response.json())
             .then(data => {
                 if (data.code === '200') {
-                    message.success("书信将在 " + this.state.emailSendTime + " 传送");
+                    message.success("鸿雁将在 " + this.state.emailSendTime + " 传送书信");
                 } else {
-                    message.error("书信无法传送")
+                    message.error("鸿雁很心累 表示书信无法传送")
                 }
             }).catch((err) => {
+                message.error("鸿雁发疯了 书信无法传送")
                 console.log(err);
             });
 
@@ -130,8 +129,6 @@ class Main extends Component {
     }
 
     render() {
-        //使用箭头函数无需绑定this
-        // const params = {setEmailContent:(data)=>this.setEmailContent(data)};
         return (
             <div style={{ backgroundImage: `url(${BackgroundImage})`, backgroundSize: '1600px 768px', height: '100%' }}>
                 <Row style={{ height: '100%' }}>
@@ -147,24 +144,16 @@ class Main extends Component {
                                     </Col>
                                     <Col span={this.state.inputIsVisible ? 24 : 0}><Input addonBefore="书信地址" placeholder="陌上花开 可缓缓归矣" onChange={(evt) => this.onInputChange(evt.target.value, 'address')} /></Col>
                                     <Input addonBefore="书信主旨" placeholder="只愿君心似我心 定不负相思意" style={{ marginTop: '10px', marginBottom: '10px' }} onChange={(evt) => this.onInputChange(evt.target.value, 'subject')} />
-                                    {/* <TextArea rows="10" placeholder="玲珑骰子安红豆 入骨相思知不知" onChange={(evt) => this.onInputChange(evt.target.value, 'content')} /> */}
-                                    {/* 向子组件SimpleEditor传递父组件Main的setEmailContent方法 */}
                                     <SimpleEditor setEmailContent={(data) => this.setEmailContent(data)} />
-                                    {/* <SimpleEditor {...params}/> */}
                                     <Row gutter={8}>
                                         <Col lg={6} md={6} xs={12} style={{ marginTop: '10px' }}>
                                             <DatePicker placeholder="何时" showTime style={{ width: '100%' }} onChange={(date, dateString) => this.onDatePickerChange(date, dateString)} />
                                         </Col>
                                         <Col lg={6} md={12} xs={24} style={{ marginTop: '10px' }}>
-                                            {/* <Button type="primary" onClick={() => this.sendWithSchedule()}>鸿雁传书</Button> */}
                                             <Button type="primary" onClick={() => this.showValidationModal()}>鸿雁传书</Button>
                                         </Col>
                                     </Row>
                                 </TabPane>
-                                {/* <TabPane tab="king-mail" key="2" disabled>
-                                    <Input />
-                                    <TextArea rows="4" />
-                                </TabPane> */}
                             </Tabs>
                             <ValidationModal modalIsVisible={this.state.modalIsVisible} hideValidationModal={() => this.hideValidationModal()} sendWithSchedule={() => this.sendWithSchedule()} />
                         </Card>

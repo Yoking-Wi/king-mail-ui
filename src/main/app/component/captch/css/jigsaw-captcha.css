@@ -45,7 +45,7 @@
 .slider-bar {
     padding: 10px;
     font-size: 14px;
-    text-align: center;
+    text-align: right; /* 滑动框内文字居右 by yoking-wi */
     color: #999;
     background-color: #ddd;
 }
