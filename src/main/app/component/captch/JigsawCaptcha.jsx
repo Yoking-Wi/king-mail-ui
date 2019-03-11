@@ -17,7 +17,7 @@
  * @author yoking-wi
  * @version 2019年3月8日 21:25:13
  * @description 1.修改部分代码 2.适配移动端滑动
- * @bug 刷新图片时 若新图与旧图相同 会出现无法滑动问题 在onReload方法中给出修复方法 但不完美 也可以通过卸载再装载此组建 解决该问题
+ * @bug 刷新图片时 若新图与旧图相同 会出现没有裁剪块问题 在onReload方法中给出修复方法 但不完美 也可以通过卸载再装载此组件 解决该问题
  */
 
 import React from "react"
@@ -34,7 +34,7 @@ const STATUS_READY = 1 // 图片渲染完成,可以开始滑动
 const STATUS_MATCH = 2 // 图片位置匹配成功
 const STATUS_ERROR = 3 // 图片位置匹配失败
 
-const arrTips = [{ ico: icoSuccess, text: "匹配成功" }, { ico: icoError, text: "失败" }]
+const arrTips = [{ ico: icoSuccess, text: "成功" }, { ico: icoError, text: "失败" }]
 
 // 生成裁剪路径
 function createClipPath(ctx, size = 100, styleIndex = 0) {
@@ -248,21 +248,29 @@ class JigsawCaptcha extends React.Component {
                 oldX: 0,
                 currX: 0, // 滑块当前 x,
                 status: STATUS_LOADING
-            },()=>{
-                this.onReset()
-                this.props.onReload()
+            }, () => {
+                this.onReset(); // 解决onReload后 新图与旧图相同时 不能滑动刷新问题 by yoking-wi
             }
         )
-
-        // // 解决onReload后 新图与旧图相同时 而不能滑动问题
+        this.props.onReload();
+        // // 解决onReload后 新图与旧图相同时 没有裁剪块问题
         // this.renderImage();
+
+
+        // 以下代码的实现效果 与 匹配失败时效果一致
+        // // 将旧的固定坐标x更新
+        // this.setState(pre => ({ isMovable: false, oldX: pre.currX }))
+
+        // this.setState({status: STATUS_LOADING},()=>{
+        //     this.onReset();
+        // })
+        // this.props.onReload();
     }
 
     onShowTips = () => {
         if (this.state.showTips) {
             return
         }
-
         const tipsIndex = this.state.status === STATUS_MATCH ? 0 : 1
         this.setState({ showTips: true, tipsIndex })
         const timer = setTimeout(() => {

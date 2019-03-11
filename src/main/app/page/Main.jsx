@@ -105,18 +105,29 @@ class Main extends Component {
                 sendTime: this.state.emailSendTime,
                 type: 'html'
             })
-        }).then(response => response.json())
-            .then(result => {
-                if (result.code === '200') {
-                    message.success("鸿雁将在 " + this.state.emailSendTime + " 传送书信");
-                } else {
-                    message.error("鸿雁很心累 表示书信无法传送")
-                }
-            }).catch((err) => {
-                message.error("鸿雁发疯了 书信无法传送")
-                console.log(err);
-            });
+        }).then(response => {
+            return response.json();
+        }
+        ).then(result => {
+            if (result.code === '200') {
+                message.success("鸿雁将在 " + this.state.emailSendTime + " 传送书信");
+            } else {
+                message.error("鸿雁很心累 表示书信无法传送")
+            }
+        }).catch((err) => {
+            message.error("鸿雁发疯了 书信无法传送")
+            console.log(err);
+        });
         message.loading("正在挑选传送书信的鸿雁...").then(send);
+
+        // //清空state
+        // this.setState({
+        //     inputIsVisible: false, //添加邮箱地址按钮 是否可见
+        //     emailAddress: '',  //邮箱地址
+        //     emailSubject: '',  //邮件主题
+        //     emailSendTime: undefined, //邮件定时发送的时间
+        //     modalIsVisible: false // 滑动拼图验证码的窗口 是否可见
+        // })
     }
 
     /**
@@ -250,7 +261,7 @@ class Main extends Component {
                                     <Row gutter={8}>
                                         <Col lg={6} md={6} xs={12} style={{ marginTop: '10px' }}>
                                             <DatePicker
-                                                showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+                                                showTime
                                                 locale={locale}
                                                 placeholder="何时"
                                                 style={{ width: '100%' }}
@@ -264,7 +275,7 @@ class Main extends Component {
                                     </Row>
                                 </TabPane>
                             </Tabs>
-                            <ValidationModal modalIsVisible={this.state.modalIsVisible} hideValidationModal={() => this.hideValidationModal()} sendWithSchedule={() => this.sendWithSchedule()} />
+                            {this.state.modalIsVisible ? <ValidationModal hideValidationModal={() => this.hideValidationModal()} sendWithSchedule={() => this.sendWithSchedule()} /> : ''}
                         </Card>
                     </Col>
                     <Col lg={5} xs={2} />

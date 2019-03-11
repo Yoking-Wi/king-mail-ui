@@ -47,20 +47,19 @@ class ValidationModal extends Component {
     onMatch() {
         this.props.sendWithSchedule();
         this.props.hideValidationModal();
-        //调用子组件方法
-        this.refs.captcha.onReload();
     }
 
     /**
-     * 验证失败 重新加载图片
+     * 验证失败
      */
     onError() {
+        // 重新加载图片
         this.onReload();
     }
 
     render() {
         return (
-            <Modal visible={this.props.modalIsVisible} centered footer={null} width="300px" onCancel={() => this.props.hideValidationModal()}>
+            <Modal visible centered footer={null} width="300px" onCancel={() => this.props.hideValidationModal()}>
                 <Spin spinning={this.state.loading} tip="loading">
                     <Card>
                         <JigsawCaptcha
