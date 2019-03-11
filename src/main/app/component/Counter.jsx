@@ -5,6 +5,7 @@ import Config from '../config/global-config'
 
 /**
  * 已发送邮件及待发送邮件的计数器
+ * @todo待发邮件数量
  * @author yoking-wi
  * @version 2019年3月10日 20:38:13
  */
