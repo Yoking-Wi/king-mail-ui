@@ -27,7 +27,7 @@ class SimpleEditor extends Component {
         if(this.checkMobliePlatform()){
             this.setState({
                 // isMobile:true,
-                editorSize:125,
+                editorSize:117,
                 controls:['text-color', 'bold', 'italic', 'underline', 'strike-through','emoji']
             })
         }

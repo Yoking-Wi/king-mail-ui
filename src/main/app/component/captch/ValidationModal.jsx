@@ -11,6 +11,12 @@ const images = requireContext.keys().map(requireContext);
  * @version 2019年3月10日 20:39:05
  */
 class ValidationModal extends Component {
+    static defaultProps={
+        onSucceed:()=>{}, //验证成功
+        onFail:()=>{},  //验证失败
+        onHide:()=>{}  //隐藏弹窗
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -45,8 +51,10 @@ class ValidationModal extends Component {
      * 验证通过
      */
     onMatch() {
-        this.props.sendWithSchedule();
-        this.props.hideValidationModal();
+        // this.props.sendWithSchedule();
+        // this.props.hideValidationModal();
+        this.props.onSucceed();
+        this.props.onHide();
     }
 
     /**
@@ -59,11 +67,10 @@ class ValidationModal extends Component {
 
     render() {
         return (
-            <Modal visible centered footer={null} width="300px" onCancel={() => this.props.hideValidationModal()}>
+            <Modal visible centered footer={null} width="300px" onCancel={() => this.props.onHide()}>
                 <Spin spinning={this.state.loading} tip="loading">
                     <Card>
                         <JigsawCaptcha
-                            ref="captcha"
                             imageWidth={200}
                             imageHeight={150}
                             fragmentSize={40}

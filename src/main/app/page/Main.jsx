@@ -11,6 +11,8 @@ import moment from 'moment';
 import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 const TabPane = Tabs.TabPane;
+const SEND_TO_MYSELF = 0; //发送邮件给未来的自己
+const SEND_TO_OTHER = 1;  //发送邮件给其他人
 
 /**
  * 主界面
@@ -27,6 +29,7 @@ class Main extends Component {
             emailContent: '',  //邮件内容
             emailSendTime: undefined, //邮件定时发送的时间
             validationModalIsVisible: false, // 滑动拼图验证码的窗口 是否可见
+            secondValidationModalIsVisible: false, // 第二个滑动拼图验证码的窗口 是否可见
             instructionModalIsVisible: false //使用说明的弹窗 是否可见
         };
     }
@@ -70,6 +73,7 @@ class Main extends Component {
 
     /**
      * 校验邮箱地址
+     * @param value
      * */
     checkEmailAddress(value) {
         return new RegExp(/\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/).test(value);
@@ -77,6 +81,7 @@ class Main extends Component {
 
     /**
      * 校验邮件内容是否为空
+     * @param value
      */
     checkEmailContent(value) {
         if (value === "<p></p>" || value === "") {
@@ -93,11 +98,16 @@ class Main extends Component {
 
     /**
      * 定时发送邮件
+     * @param type
      */
-    sendWithSchedule() {
+    sendWithSchedule(type) {
+        let url = '';
+        if (type === SEND_TO_MYSELF) {
+            url = `${Config.URL}/api/email/schedule/myself`;
+        } else if (type === SEND_TO_OTHER) {
+            url = `${Config.URL}/api/email/schedule`;
+        }
         let headers = new Headers();
-        // let url = "http://127.0.0.1:8080/api/email/schedule";
-        let url = `${Config.URL}/api/email/schedule`;
         headers.append("Content-Type", "application/json;charset=utf-8");
         let send = () => fetch(url, {
             method: 'post',
@@ -145,13 +155,25 @@ class Main extends Component {
 
     /**
      * 显示窗口 滑动拼图校验
+     * @param type
      */
-    showValidationModal() {
-        //校验邮箱地址
-        if (this.state.emailAddress != null && this.state.emailAddress.trim() !== "") {
+    showValidationModal(type) {
+        // 当 发邮件给未来的自己时 邮箱校验
+        if (type === SEND_TO_MYSELF) {
+            if (this.state.emailAddress === null || this.state.emailAddress.trim() === "") {
+                message.warning("书信地址不能为空");
+                return;
+            }
             if (!this.checkEmailAddress(this.state.emailAddress)) {
                 message.warning("书信地址不正确");
                 return;
+            }
+        } else if (type === SEND_TO_OTHER) {// 当 发邮件给其他人时 邮箱校验
+            if (this.state.emailAddress != null && this.state.emailAddress.trim() !== "") {
+                if (!this.checkEmailAddress(this.state.emailAddress)) {
+                    message.warning("书信地址不正确");
+                    return;
+                }
             }
         }
         // 校验邮件内容是否为空
@@ -163,15 +185,25 @@ class Main extends Component {
             message.warning("请指定传送书信日期时间");
             return;
         }
-        //显示窗口
-        this.setState({ validationModalIsVisible: true });
+        //当 发邮件给未来的自己时 是第一个弹窗 否则 是第二个弹窗
+        if (type === SEND_TO_MYSELF) {
+            this.setState({ validationModalIsVisible: true });
+        } else if (type === SEND_TO_OTHER) {
+            this.setState({ secondValidationModalIsVisible: true });
+        }
     }
 
     /**
      * 隐藏窗口 滑动拼图校验
+     * @param type
      */
-    hideValidationModal() {
-        this.setState({ validationModalIsVisible: false });
+    hideValidationModal(type) {
+        //当 发邮件给未来的自己时 是第一个弹窗 否则 是第二个弹窗
+        if (type === SEND_TO_MYSELF) {
+            this.setState({ validationModalIsVisible: false });
+        } else if (type === SEND_TO_OTHER) {
+            this.setState({ secondValidationModalIsVisible: false });
+        }
     }
 
     /**
@@ -187,6 +219,7 @@ class Main extends Component {
 
     /**
      * 禁止选择过去的时间
+     * @param datetime
      */
     disabledDateTime(datetime) {
         let currentDay = moment().date(); //Gets the day of the month.
@@ -248,36 +281,40 @@ class Main extends Component {
 
     render() {
         return (
-            <div style={{ backgroundImage: `url(${BackgroundImage})`, backgroundSize: 'cover', backgroundAttachment: 'fixed', overflow: 'auto',height:'100%' }}>
+            <div style={{ backgroundImage: `url(${BackgroundImage})`, backgroundSize: 'cover', backgroundAttachment: 'fixed', overflow: 'auto', height: '100%' }}>
                 <Row style={{ height: '100%' }}>
                     <Col lg={5} xs={2} />
                     <Col lg={14} xs={20} style={{ marginTop: '5%', marginBottom: '5%' }}>
                         <Card>
                             <Tabs defaultActiveKey="1" tabBarExtraContent={<Counter />}>
                                 <TabPane tab="书信" key="1" >
-                                    <Button type="primary" icon="question" shape="circle" size="small" onClick={() => this.showOrHideInstructionModal("open")} />
+                                    <Col lg={18} md={18} xs={16}>
+                                        <Button type="primary" icon="question" shape="circle" size="small" onClick={() => this.showOrHideInstructionModal("open")} />
+                                    </Col>
+                                    <Col lg={6} md={6} xs={8}>
+                                        <Button style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_OTHER)}>鸿雁传书</Button>
+                                        {this.state.secondValidationModalIsVisible ? <ValidationModal onHide={() => this.hideValidationModal(SEND_TO_OTHER)} onSucceed={() => this.sendWithSchedule(SEND_TO_OTHER)} /> : ''}
+                                    </Col>
                                     <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>请自行摸索！自己玩去</Modal>
                                     <Input addonBefore="书信地址" placeholder="陌上花开 可缓缓归矣" style={{ marginTop: '10px' }} onChange={(evt) => this.onInputChange(evt.target.value, 'address')} />
                                     <Input addonBefore="书信主旨" placeholder="只愿君心似我心 定不负相思意" style={{ marginTop: '10px', marginBottom: '10px' }} onChange={(evt) => this.onInputChange(evt.target.value, 'subject')} />
                                     <SimpleEditor setEmailContent={(data) => this.setEmailContent(data)} />
-                                    <Row gutter={8}>
-                                        <Col lg={6} md={6} xs={12} style={{ marginTop: '10px' }}>
-                                            <DatePicker
-                                                showTime
-                                                locale={locale}
-                                                placeholder="何时"
-                                                style={{ width: '100%' }}
-                                                disabledDate={(currentDate) => this.disabledDate(currentDate)}
-                                                disabledTime={(datetime) => this.disabledDateTime(datetime)}
-                                                onChange={(date, dateString) => this.onDatePickerChange(date, dateString)} />
-                                        </Col>
-                                        <Col lg={6} md={12} xs={24} style={{ marginTop: '10px' }}>
-                                            <Button type="primary" onClick={() => this.showValidationModal()}>鸿雁传书</Button>
-                                        </Col>
-                                    </Row>
+                                    <Col lg={{ span: 6 }} md={{ span: 6 }} xs={24} style={{ marginTop: '10px' }}>
+                                        <DatePicker
+                                            showTime
+                                            locale={locale}
+                                            placeholder="何时"
+                                            style={{ width: '100%' }}
+                                            disabledDate={(currentDate) => this.disabledDate(currentDate)}
+                                            disabledTime={(datetime) => this.disabledDateTime(datetime)}
+                                            onChange={(date, dateString) => this.onDatePickerChange(date, dateString)} />
+                                    </Col>
+                                    <Col lg={{ span: 6, offset: 12 }} md={{ span: 6, offset: 12 }} xs={24} style={{ marginTop: '10px' }}>
+                                        <Button type="primary" style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_MYSELF)}>送给未来的自己</Button>
+                                        {this.state.validationModalIsVisible ? <ValidationModal onHide={() => this.hideValidationModal(SEND_TO_MYSELF)} onSucceed={() => this.sendWithSchedule(SEND_TO_MYSELF)} /> : ''}
+                                    </Col>
                                 </TabPane>
                             </Tabs>
-                            {this.state.validationModalIsVisible ? <ValidationModal hideValidationModal={() => this.hideValidationModal()} sendWithSchedule={() => this.sendWithSchedule()} /> : ''}
                         </Card>
                     </Col>
                     <Col lg={5} xs={2} />
