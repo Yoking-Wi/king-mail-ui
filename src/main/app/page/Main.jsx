@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Tabs, Input, Row, Col, Card, Button, DatePicker, message, Modal } from 'antd'
+import { Tabs, Input, Row, Col, Card, Button, DatePicker, message, Modal } from 'antd';
+import FastScanner from 'fastscan';
 import SimpleEditor from '../component/SimpleEditor';
 import ValidationModal from '../component/captch/ValidationModal';
 import Counter from '../component/Counter';
 import Config from '../config/global-config';
-import BackgroundImage from '../../resource/img/15.jpg'
+import SensitiveWordLib from '../config/sensitive-words-lib';
+import BackgroundImage from '../../resource/img/15.jpg';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import 'antd/dist/antd.css';
 import moment from 'moment';
@@ -91,10 +93,23 @@ class Main extends Component {
     }
 
     /**
-     * @todo 校验敏感字符
-     * @param {*} value
+     * 校验敏感字符
+     * @param value
+     * @returns 有敏感词就返回包含 校验到的第一个敏感词 的二维数组 否则就返回空的二维数组
      */
-    checkSensitiveChar(value) { }
+    checkSensitiveWords(value) {
+        //定义敏感词库
+        let sensitiveWordLib = SensitiveWordLib.LIB;
+        let scanner = new FastScanner(sensitiveWordLib);
+        // 查询敏感词 longest:匹配最长 quick:匹配到一个即返回
+        let sensitiveWords = scanner.search(value, { quick: true, longest: false });
+        // if (sensitiveWords.length !== 0) {
+        //     // 返回找到的第一个敏感词
+        //     return sensitiveWords[0][1];
+        // }
+        return sensitiveWords;
+
+    }
 
     /**
      * 定时发送邮件
@@ -176,14 +191,21 @@ class Main extends Component {
                 }
             }
         }
+        // 校验邮件发送时间是否为空
+        if (this.state.emailSendTime === undefined) {
+            message.warning("请指定传送书信日期时间");
+            return;
+        }
         // 校验邮件内容是否为空
         if (!this.checkEmailContent(this.state.emailContent)) {
             message.warning("书信内容不能为空");
             return;
-        }
-        if (this.state.emailSendTime === undefined) {
-            message.warning("请指定传送书信日期时间");
-            return;
+        } else if (this.checkEmailContent(this.state.emailContent)) { //邮件内容不为空时 校验内容是否含敏感词
+            if (this.checkSensitiveWords(this.state.emailContent).length !== 0) {
+                let sensitiveWord = this.checkSensitiveWords(this.state.emailContent)[0][1];
+                message.warning("书信内容包含敏感词：" + sensitiveWord);
+                return;
+            };
         }
         //当 发邮件给未来的自己时 是第一个弹窗 否则 是第二个弹窗
         if (type === SEND_TO_MYSELF) {
@@ -290,12 +312,12 @@ class Main extends Component {
                                 <TabPane tab="书信" key="1" >
                                     <Col lg={18} md={18} xs={16}>
                                         <Button type="primary" icon="question" shape="circle" size="small" onClick={() => this.showOrHideInstructionModal("open")} />
+                                        <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>{Config.USAGE!==""?Config.USAGE:"请自行摸索！自己玩去"}</Modal>
                                     </Col>
                                     <Col lg={6} md={6} xs={8}>
                                         <Button style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_OTHER)}>鸿雁传书</Button>
                                         {this.state.secondValidationModalIsVisible ? <ValidationModal onHide={() => this.hideValidationModal(SEND_TO_OTHER)} onSucceed={() => this.sendWithSchedule(SEND_TO_OTHER)} /> : ''}
                                     </Col>
-                                    <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>请自行摸索！自己玩去</Modal>
                                     <Input addonBefore="书信地址" placeholder="陌上花开 可缓缓归矣" style={{ marginTop: '10px' }} onChange={(evt) => this.onInputChange(evt.target.value, 'address')} />
                                     <Input addonBefore="书信主旨" placeholder="只愿君心似我心 定不负相思意" style={{ marginTop: '10px', marginBottom: '10px' }} onChange={(evt) => this.onInputChange(evt.target.value, 'subject')} />
                                     <SimpleEditor setEmailContent={(data) => this.setEmailContent(data)} />
