@@ -118,16 +118,16 @@ class Main extends Component {
     sendWithSchedule(type) {
         let url = '';
         if (type === SEND_TO_MYSELF) {
-            url = `${Config.URL}/api/email/schedule/myself`;
+            url = `/api/email/schedule/myself`;
         } else if (type === SEND_TO_OTHER) {
-            url = `${Config.URL}/api/email/schedule`;
+            url = `/api/email/schedule`;
         }
         let headers = new Headers();
         headers.append("Content-Type", "application/json;charset=utf-8");
         let send = () => fetch(url, {
             method: 'post',
             headers: headers,
-            mode: 'cors',//跨域请求
+            // mode: 'cors',//跨域请求
             body: JSON.stringify({
                 address: this.state.emailAddress,
                 subject: this.state.emailSubject,

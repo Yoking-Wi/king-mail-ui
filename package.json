@@ -6,6 +6,7 @@
     "antd": "^3.15.0",
     "braft-editor": "^2.2.9",
     "fastscan": "^1.0.6",
+    "http-proxy-middleware": "^0.19.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-scripts": "2.1.8",

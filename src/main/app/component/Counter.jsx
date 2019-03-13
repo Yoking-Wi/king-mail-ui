@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client'
-import Config from '../config/global-config'
+// import Config from '../config/global-config'
 
 /**
  * 已发送邮件及待发送邮件的计数器
@@ -31,12 +31,12 @@ class Counter extends Component {
         // 获取数据
         let headers = new Headers();
         // let url = "http://127.0.0.1:8080/api/email/schedule";
-        let url = `${Config.URL}/api/email/schedule/completed-job-number`;
+        let url = `/api/email/schedule/completed-job-number`;
         headers.append("Content-Type", "application/json;charset=utf-8");
         fetch(url,{
             method:'get',
             headers: headers,
-            mode: 'cors',//跨域请求
+            // mode: 'cors',//跨域请求
         }).then(response => response.json()).then(
             result=>{
                 this.setState({emailSentNum:result.data});
@@ -44,7 +44,7 @@ class Counter extends Component {
         )
 
         // 建立 websocket 连接
-        let sockjs = new SockJS(`${Config.URL}/ws/email`);
+        let sockjs = new SockJS(`/ws/email`);
         let stomp = Stomp.over(sockjs);
         // 建立 websocket 连接
         stomp.connect({}, () => {
