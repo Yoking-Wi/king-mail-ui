@@ -312,7 +312,7 @@ class Main extends Component {
                                 <TabPane tab="书信" key="1" >
                                     <Col lg={18} md={18} xs={16}>
                                         <Button type="primary" icon="question" shape="circle" size="small" onClick={() => this.showOrHideInstructionModal("open")} />
-                                        <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>{Config.USAGE!==""?Config.USAGE:"请自行摸索！自己玩去"}</Modal>
+                                        <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>{Config.USAGE!==""?<div dangerouslySetInnerHTML={{__html: Config.USAGE}}></div>:"请自行摸索！自己玩去"}</Modal>
                                     </Col>
                                     <Col lg={6} md={6} xs={8}>
                                         <Button style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_OTHER)}>鸿雁传书</Button>
