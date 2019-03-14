@@ -306,7 +306,7 @@ class Main extends Component {
             <div style={{ backgroundImage: `url(${BackgroundImage})`, backgroundSize: 'cover', backgroundAttachment: 'fixed', overflow: 'auto', height: '100%' }}>
                 <Row style={{ height: '100%' }}>
                     <Col lg={5} xs={2} />
-                    <Col lg={14} xs={20} style={{ marginTop: '5%', marginBottom: '5%' }}>
+                    <Col lg={14} xs={20} style={{ marginTop: '5%' }}>
                         <Card>
                             <Tabs defaultActiveKey="1" tabBarExtraContent={<Counter />}>
                                 <TabPane tab="书信" key="1" >
@@ -338,6 +338,7 @@ class Main extends Component {
                                 </TabPane>
                             </Tabs>
                         </Card>
+                        <div style={{textAlign:'center',marginTop:'9%'}}>Copyright © 2019 yoking-wi</div>
                     </Col>
                     <Col lg={5} xs={2} />
                 </Row>
