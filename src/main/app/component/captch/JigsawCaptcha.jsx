@@ -376,7 +376,7 @@ class JigsawCaptcha extends React.Component {
                     </div>
                 </div>
 
-                <div id="slider" className="slider-wrpper" onMouseMove={this.onMoving} onMouseLeave={this.onMoveEnd} onTouchMove={this.onTouchMove} onTouchEnd={this.onTouchEnd}>
+                <div id="slider" className="slider-wrpper" onMouseMove={this.onMoving} onMouseLeave={this.onMoveEnd} onTouchMove={this.onTouchMove}>
                     <div className="slider-bar">拖动拼图完成验证</div>
                     <div
                         className="slider-button"

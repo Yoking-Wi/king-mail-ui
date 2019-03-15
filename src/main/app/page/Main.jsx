@@ -137,14 +137,13 @@ class Main extends Component {
             })
         }).then(response => {
             return response.json();
-        }
-        ).then(result => {
+        }).then(result => {
             if (result.code === '200') {
                 message.success("鸿雁将在 " + this.state.emailSendTime + " 传送书信");
             } else {
                 message.error("鸿雁很心累 表示书信无法传送")
             }
-        }).catch((err) => {
+        }).catch(err => {
             message.error("鸿雁发疯了 书信无法传送")
             console.log(err);
         });
@@ -235,8 +234,7 @@ class Main extends Component {
      */
     disabledDate(currentDate) {
         //小于当前日期（不含当前日期）
-        let duration = moment.duration({ 'days': 1 });
-        return currentDate < moment().subtract(duration);
+        return currentDate<moment().subtract(1,'days');
     }
 
     /**
@@ -312,7 +310,7 @@ class Main extends Component {
                                 <TabPane tab="书信" key="1" >
                                     <Col lg={18} md={18} xs={16}>
                                         <Button type="primary" icon="question" shape="circle" size="small" onClick={() => this.showOrHideInstructionModal("open")} />
-                                        <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>{Config.USAGE!==""?<div dangerouslySetInnerHTML={{__html: Config.USAGE}}></div>:"请自行摸索！自己玩去"}</Modal>
+                                        <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>{Config.USAGE !== "" ? <div dangerouslySetInnerHTML={{ __html: Config.USAGE }}></div> : "请自行摸索！自己玩去"}</Modal>
                                     </Col>
                                     <Col lg={6} md={6} xs={8}>
                                         <Button style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_OTHER)}>鸿雁传书</Button>
@@ -332,13 +330,13 @@ class Main extends Component {
                                             onChange={(date, dateString) => this.onDatePickerChange(date, dateString)} />
                                     </Col>
                                     <Col lg={{ span: 6, offset: 12 }} md={{ span: 6, offset: 12 }} xs={24} style={{ marginTop: '10px' }}>
-                                        <Button type="primary" style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_MYSELF)}>送给未来的自己</Button>
+                                        <Button type="primary" style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_MYSELF)}>送信给未来的自己</Button>
                                         {this.state.validationModalIsVisible ? <ValidationModal onHide={() => this.hideValidationModal(SEND_TO_MYSELF)} onSucceed={() => this.sendWithSchedule(SEND_TO_MYSELF)} /> : ''}
                                     </Col>
                                 </TabPane>
                             </Tabs>
                         </Card>
-                        <div style={{textAlign:'center',marginTop:'9%'}}>Copyright © 2019 yoking-wi</div>
+                        <div style={{ textAlign: 'center', marginTop: '9%' }}>Copyright © 2019 yoking-wi</div>
                     </Col>
                     <Col lg={5} xs={2} />
                 </Row>

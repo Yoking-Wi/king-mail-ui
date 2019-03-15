@@ -33,15 +33,17 @@ class Counter extends Component {
         // let url = "http://127.0.0.1:8080/api/email/schedule";
         let url = `/api/email/schedule/completed-job-number`;
         headers.append("Content-Type", "application/json;charset=utf-8");
-        fetch(url,{
-            method:'get',
+        fetch(url, {
+            method: 'get',
             headers: headers,
             // mode: 'cors',//跨域请求
-        }).then(response => response.json()).then(
-            result=>{
-                this.setState({emailSentNum:result.data});
-            }
-        )
+        }).then(response => {
+            return response.json()
+        }).then(result => {
+            this.setState({ emailSentNum: result.data });
+        }).catch(err => {
+            console.log(err);
+        })
 
         // 建立 websocket 连接
         let sockjs = new SockJS(`/ws/email`);
@@ -58,8 +60,8 @@ class Counter extends Component {
     render() {
         const emailSentNum = this.state.emailSentNum;
         return (
-            <div style={{color:'#1890ff'}}>
-                <span style={{fontWeight:'bold'}}>{`${emailSentNum}`}</span>只鸿雁完成了使命
+            <div style={{ color: '#1890ff' }}>
+                <span style={{ fontWeight: 'bold' }}>{`${emailSentNum}`}</span>只鸿雁完成了使命
             </div>
         );
     }
