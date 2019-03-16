@@ -7,8 +7,11 @@
     "braft-editor": "^2.2.9",
     "fastscan": "^1.0.6",
     "http-proxy-middleware": "^0.19.1",
+    "rc-animate": "^2.6.0",
+    "rc-queue-anim": "^1.6.12",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
+    "react-markdown": "^4.0.6",
     "react-scripts": "2.1.8",
     "sockjs-client": "^1.3.0",
     "stompjs": "^2.3.3"

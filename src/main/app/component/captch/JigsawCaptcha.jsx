@@ -22,7 +22,7 @@
 
 import React from "react"
 
-import "./css/jigsaw-captcha.css"
+import "./jigsaw-captcha.css"
 
 const icoSuccess = require("../../../resource/img/captcha/success.jpg")
 const icoError = require("../../../resource/img/captcha/error.jpg")

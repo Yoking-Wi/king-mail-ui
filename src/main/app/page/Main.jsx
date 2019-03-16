@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Tabs, Input, Row, Col, Card, Button, DatePicker, message, Modal } from 'antd';
+import { Tabs, Input, Row, Col, Card, Button, DatePicker, message, Modal,Icon,Popconfirm } from 'antd';
+import Notice from '../component/Notice';
 import FastScanner from 'fastscan';
 import SimpleEditor from '../component/SimpleEditor';
 import ValidationModal from '../component/captch/ValidationModal';
 import Counter from '../component/Counter';
-import Config from '../config/global-config';
+// import Config from '../config/global-config';
 import SensitiveWordLib from '../config/sensitive-words-lib';
 import BackgroundImage from '../../resource/img/15.jpg';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
@@ -234,7 +235,7 @@ class Main extends Component {
      */
     disabledDate(currentDate) {
         //小于当前日期（不含当前日期）
-        return currentDate<moment().subtract(1,'days');
+        return currentDate < moment().subtract(1, 'days');
     }
 
     /**
@@ -302,18 +303,20 @@ class Main extends Component {
     render() {
         return (
             <div style={{ backgroundImage: `url(${BackgroundImage})`, backgroundSize: 'cover', backgroundAttachment: 'fixed', overflow: 'auto', height: '100%' }}>
-                <Row style={{ height: '100%' }}>
+                <Row style={{ height: '95%' }}>
                     <Col lg={5} xs={2} />
                     <Col lg={14} xs={20} style={{ marginTop: '5%' }}>
                         <Card>
                             <Tabs defaultActiveKey="1" tabBarExtraContent={<Counter />}>
                                 <TabPane tab="书信" key="1" >
-                                    <Col lg={18} md={18} xs={16}>
+                                    <Col lg={18} md={18} xs={14}>
                                         <Button type="primary" icon="question" shape="circle" size="small" onClick={() => this.showOrHideInstructionModal("open")} />
-                                        <Modal footer={null} title="使用说明" visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>{Config.USAGE !== "" ? <div dangerouslySetInnerHTML={{ __html: Config.USAGE }}></div> : "请自行摸索！自己玩去"}</Modal>
+                                        <Modal footer={null} visible={this.state.instructionModalIsVisible} onCancel={() => this.showOrHideInstructionModal("close")}>{<Notice />}</Modal>
                                     </Col>
-                                    <Col lg={6} md={6} xs={8}>
-                                        <Button style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_OTHER)}>鸿雁传书</Button>
+                                    <Col lg={6} md={6} xs={10}>
+                                        <Popconfirm okText="确定" cancelText="取消" placement="bottomRight" title="书信将随机传送至平台内任一地址" onConfirm={()=> this.showValidationModal(SEND_TO_OTHER)}>
+                                        <Button style={{ width: '100%' }}>鸿雁传书 +</Button>
+                                        </Popconfirm>
                                         {this.state.secondValidationModalIsVisible ? <ValidationModal onHide={() => this.hideValidationModal(SEND_TO_OTHER)} onSucceed={() => this.sendWithSchedule(SEND_TO_OTHER)} /> : ''}
                                     </Col>
                                     <Input addonBefore="书信地址" placeholder="陌上花开 可缓缓归矣" style={{ marginTop: '10px' }} onChange={(evt) => this.onInputChange(evt.target.value, 'address')} />
@@ -330,13 +333,19 @@ class Main extends Component {
                                             onChange={(date, dateString) => this.onDatePickerChange(date, dateString)} />
                                     </Col>
                                     <Col lg={{ span: 6, offset: 12 }} md={{ span: 6, offset: 12 }} xs={24} style={{ marginTop: '10px' }}>
-                                        <Button type="primary" style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_MYSELF)}>送信给未来的自己</Button>
+                                        <Button type="primary" style={{ width: '100%' }} onClick={() => this.showValidationModal(SEND_TO_MYSELF)}>鸿雁传书</Button>
                                         {this.state.validationModalIsVisible ? <ValidationModal onHide={() => this.hideValidationModal(SEND_TO_MYSELF)} onSucceed={() => this.sendWithSchedule(SEND_TO_MYSELF)} /> : ''}
                                     </Col>
                                 </TabPane>
                             </Tabs>
                         </Card>
-                        <div style={{ textAlign: 'center', marginTop: '9%' }}>Copyright © 2019 yoking-wi</div>
+                    </Col>
+                    <Col lg={5} xs={2} />
+                </Row>
+                <Row style={{height: '5%'}}>
+                    <Col lg={5} xs={2} />
+                    <Col lg={14} xs={20} style={{marginTop:'15px'}}>
+                        <div style={{textAlign:'center'}}>Copyright © 2019 yoking-wi <Icon type="github"/>{<span style={{cursor:'pointer'}} onClick={()=> window.location.href="https://github.com/Yoking-Wi/king-mail-ui"}>Github</span>}</div>
                     </Col>
                     <Col lg={5} xs={2} />
                 </Row>

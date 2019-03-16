@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client'
+import { Tooltip } from 'antd';
 // import Config from '../config/global-config'
 
 /**
@@ -61,7 +62,9 @@ class Counter extends Component {
         const emailSentNum = this.state.emailSentNum;
         return (
             <div style={{ color: '#1890ff' }}>
-                <span style={{ fontWeight: 'bold' }}>{`${emailSentNum}`}</span>只鸿雁完成了使命
+                <Tooltip title="至今完成使命的鸿雁数量">
+                    <span style={{ fontWeight: 'bold' }}>{`${emailSentNum}`}</span>
+                </Tooltip>
             </div>
         );
     }

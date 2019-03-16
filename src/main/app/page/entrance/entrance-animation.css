@@ -1,0 +1,33 @@
+.center-1 {
+    position: absolute;
+    top: 27%;
+    left: 60%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.center-2 {
+    position: absolute;
+    top: 35%;
+    left: 40%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.center-3 {
+    position: absolute;
+    top: 40%;
+    left: 35%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+/* @font-face {
+    font-family: STKaiTi;
+    src: url('STKaiTi.ttf');
+} */
+
+.font {
+    color:rgba(255, 255, 255, 1);
+    font-size:6vh;
+    font-family: STXingkai ;
+    /* font-family: "Helvetica Neue", Helvetica, STKaiTi, sans-serif; */
+    writing-mode: vertical-rl;
+}
